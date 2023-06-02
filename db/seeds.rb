@@ -25,7 +25,7 @@ end
 end
 
 
-10.times do |i|
+8.times do |i|
   Transaction.create!(
     name: Faker::Internet.username,
     group: "income",
