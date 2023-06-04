@@ -20,6 +20,32 @@ module Api
         end
       end
 
+      def update
+        @category = Category.find(params[:id])
+
+        if params[:category][:members_ids].present?
+          @members_ids_to_add = params[:category][:members_ids].map(&:to_i) - @category.members_ids
+          @members_ids_to_remove = @category.members_ids - params[:category][:members_ids].map(&:to_i)
+
+
+          @members_ids_to_add.each do |member_id|
+            @category.members << Member.find(member_id)
+          end
+
+          @members_ids_to_remove.each do |member_id|
+            @category.members.delete(Member.find(member_id))
+            @category.transactions.where(member_id: member_id).destroy_all
+          end
+        end
+
+        if @category.update(category_params)
+
+          render json: @category, status: :ok
+        else
+          render json: @category.errors, status: :unprocessable_entity
+        end
+      end
+
       def remove_from_member
         @category = Category.find(params[:category_id])
         @member = Member.find(params[:id])
