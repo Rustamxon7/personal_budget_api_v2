@@ -20,6 +20,16 @@ module Api
         end
       end
 
+      def destroy
+        @category = Category.find(params[:id])
+        
+        if @category.destroy
+          render json: @category, status: :ok
+        else
+          render json: @category.errors, status: :unprocessable_entity
+        end
+      end
+
       private
 
       def category_params
