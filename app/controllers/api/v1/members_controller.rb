@@ -1,6 +1,62 @@
 module Api
   module V1
     class MembersController < ApplicationController
+      def index
+        @members = Member.includes(:categories).where(user_id: current_user.id).where.not(username: current_user.username).order(created_at: :desc).map do |m|
+          {
+            id: m.id,
+            username: m.username,
+            user_id: m.user_id,
+            image: m.image,
+            kind: m.kind,
+          }
+        end
+
+        @first_member = current_user.members.first
+
+        @members.unshift({
+          id: @first_member.id,
+          username: @first_member.username,
+          user_id: @first_member.user_id,
+          image: @first_member.image,
+          kind: @first_member.kind,
+        })
+
+        render json: JSON.dump(@members), status: :ok
+      end
+
+      def settings_members
+        @members = Member.includes(:categories).where(user_id: current_user.id).where.not(username: current_user.username).order(created_at: :desc).map do |m|
+          {
+            id: m.id,
+            username: m.username,
+            user_id: m.user_id,
+            image: m.image,
+            kind: m.kind,
+            total_balance: m.total_balance,
+          }
+        end
+
+        @first_member = current_user.members.first
+
+        @members.unshift({
+          id: @first_member.id,
+          username: @first_member.username,
+          user_id: @first_member.user_id,
+          image: @first_member.image,
+          kind: @first_member.kind,
+          total_balance: @first_member.total_balance,
+        })
+
+        render json: JSON.dump(@members), status: :ok
+      end
+
+      def show
+        @member = Member.find(params[:id])
+        @categories = @member.categories
+        render json: @categories, status: :ok
+      end
+
       def create
         username = params[:username]
         user_id = current_user.id
@@ -26,40 +82,17 @@ module Api
         render json: @member, status: :ok
       end
 
-      def remove_from_member
-        @category = Category.find(params[:category_id])
+      def update
+        username = params[:username]
+        user_id = current_user.id
+        image = params[:image]
+
         @member = Member.find(params[:id])
 
-        @category.members.delete(@member)
-        Member.refresh
-        @category.members_ids.delete(@member.id)
-
-        render json: @category, status: :ok
-      end
-
-      def update
-        @category = Category.find(params[:id])
-
-        if params[:category][:members_ids].present?
-          @members_ids_to_add = params[:category][:members_ids].map(&:to_i) - @category.members_ids
-          @members_ids_to_remove = @category.members_ids - params[:category][:members_ids].map(&:to_i)
-
-
-          @members_ids_to_add.each do |member_id|
-            @category.members << Member.find(member_id)
-          end
-
-          @members_ids_to_remove.each do |member_id|
-            @category.members.delete(Member.find(member_id))
-            @category.transactions.where(member_id: member_id).destroy_all
-          end
-        end
-
-        if @category.update(category_params)
-
-          render json: @category, status: :ok
+        if @member.update(username: username, user_id: user_id, image: image)
+          render json: @member, status: :ok
         else
-          render json: @category.errors, status: :unprocessable_entity
+          render json: @member.errors, status: :unprocessable_entity
         end
       end
     
