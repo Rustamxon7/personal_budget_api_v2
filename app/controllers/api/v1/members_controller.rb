@@ -14,6 +14,17 @@ module Api
           render json: @member.errors, status: :unprocessable_entity
         end
       end
+
+      def destroy
+        @member = Member.find(params[:id])
+
+        unless @member.username == current_user.username
+          @member.destroy
+          render json: @member, status: :ok
+        end
+        
+        render json: @member, status: :ok
+      end
     
       private
     
