@@ -26,6 +26,17 @@ module Api
         render json: @member, status: :ok
       end
 
+      def remove_from_member
+        @category = Category.find(params[:category_id])
+        @member = Member.find(params[:id])
+
+        @category.members.delete(@member)
+        Member.refresh
+        @category.members_ids.delete(@member.id)
+
+        render json: @category, status: :ok
+      end
+
       def update
         @category = Category.find(params[:id])
 
