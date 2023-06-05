@@ -1,6 +1,11 @@
 module Api
   module V1
     class CategoriesController < ApplicationController
+      def show
+        @category = Category.find(params[:id])
+
+        render json: @category, serializer: CategorySerializer, status: :ok
+      end
 
       def incomes
         @member = Member.find(params[:member_id])
