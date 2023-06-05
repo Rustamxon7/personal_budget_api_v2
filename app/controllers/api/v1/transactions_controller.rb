@@ -1,6 +1,13 @@
 module Api
   module V1
     class TransactionsController < ApplicationController
+      def index
+        @category = Category.find(params[:id])
+
+        @transactions = @category.transactions.where(member_id: params[:member_id])
+
+        render json: @transactions, each_serializer: TransactionSerializer, status: :ok
+      end
 
       def recent_transactions
         @member = Member.find(params[:id])
