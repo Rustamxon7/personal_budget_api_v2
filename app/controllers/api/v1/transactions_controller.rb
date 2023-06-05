@@ -2,6 +2,17 @@ module Api
   module V1
     class TransactionsController < ApplicationController
 
+
+      def search
+        @member = Member.find(params[:member_id])
+
+        query = params[:query]
+
+        @transactions = Transaction.search(query).where(member_id: @member.id)
+
+        render json: @transactions, each_serializer: TransactionSerializer, status: :ok
+      end
+
       def create
         @transaction = Transaction.new(transaction_params)
         @transaction.group = @transaction.category.kind
