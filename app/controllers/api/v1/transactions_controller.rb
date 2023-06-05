@@ -20,6 +20,18 @@ module Api
         end
       end
 
+      def destroy
+        @transaction = Transaction.find(params[:id])
+
+        if @transaction.destroy
+          puts "🌱🌱🌱 Transaction deleted! 🌱🌱🌱"
+
+          render json: @transaction, serializer: TransactionSerializer, status: :ok
+        else
+          render json: { errors: @transaction.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+
       private
 
       def transaction_params
