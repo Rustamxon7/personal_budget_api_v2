@@ -2,6 +2,20 @@ module Api
   module V1
     class TransactionsController < ApplicationController
 
+      def recent_transactions
+        @member = Member.find(params[:id])
+
+        @transactions = @member.transactions.order(updated_at: :desc).limit(12).map do |t|
+          {
+            id: t.id,
+            name: t.name,
+            amount: t.amount,
+            group: t.group,
+          }
+        end
+
+        render json: JSON.dump(@transactions), status: :ok
+      end
 
       def show
         @transaction = Transaction.find(params[:id])
