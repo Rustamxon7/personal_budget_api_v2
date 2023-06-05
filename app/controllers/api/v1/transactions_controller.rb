@@ -20,6 +20,21 @@ module Api
         end
       end
 
+      def update
+        @transaction = Transaction.find(params[:id])
+
+        if @transaction.amount != transaction_params[:amount].to_f
+          total_amount = @transaction.category.total_amounts.find_by(member_id: @transaction.member_id).amount - @transaction.amount + transaction_params[:amount].to_f
+          @transaction.category.total_amounts.find_by(member_id: @transaction.member_id).update(amount: total_amount)
+        end
+
+        if @transaction.update(transaction_params)
+          render json: @transaction, serializer: TransactionSerializer, status: :ok
+        else
+          render json: { errors: @transaction.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+
       def destroy
         @transaction = Transaction.find(params[:id])
 
