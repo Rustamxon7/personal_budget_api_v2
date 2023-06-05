@@ -1,6 +1,23 @@
 module Api
   module V1
     class CategoriesController < ApplicationController
+
+      def index        
+        @member = Member.find(params[:member_id])
+        @categories = @member.categories.order(created_at: :desc).map do |c|
+          {
+            id: c.id,
+            name: c.name,
+            icon: c.icon,
+            kind: c.kind,
+            user_id: c.user_id,
+            total_amount: @member.total_amount(c.id)
+          }
+        end
+
+        render json: JSON.dump(@categories), status: :ok
+      end
+
       def show
         @category = Category.find(params[:id])
 
