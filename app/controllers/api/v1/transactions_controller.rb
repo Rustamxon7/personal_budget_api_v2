@@ -3,6 +3,12 @@ module Api
     class TransactionsController < ApplicationController
 
 
+      def show
+        @transaction = Transaction.find(params[:id])
+
+        render json: @transaction, serializer: TransactionSerializer, status: :ok
+      end
+
       def search
         @member = Member.find(params[:member_id])
 
